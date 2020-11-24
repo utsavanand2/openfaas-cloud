@@ -40,8 +40,6 @@ COPY --from=build /go/src/github.com/openfaas/openfaas-cloud/edge-auth/edge-auth
 COPY --from=build /go/src/github.com/openfaas/openfaas-cloud/edge-auth/static      static
 COPY --from=build /go/src/github.com/openfaas/openfaas-cloud/edge-auth/template    template
 
-LABEL org.opencontainers.image.source https://github.com/openfaas/openfaas-cloud
-
 USER app
 EXPOSE 8080
 VOLUME /tmp
