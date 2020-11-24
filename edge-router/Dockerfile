@@ -30,6 +30,8 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=${CGO_ENABLED} go build \
 
 FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.12 as ship
 
+ARG REPO_URL
+
 RUN apk --no-cache add ca-certificates \
     && addgroup -S app && adduser -S -g app app \
     && mkdir -p /home/app \

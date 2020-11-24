@@ -1,6 +1,11 @@
-FROM openfaas/faas-cli:0.12.8 as faas-cli
-FROM openfaas/classic-watchdog:0.18.17 as watchdog
-FROM golang:1.13-alpine3.12 as build
+FROM --platform=${TARGETPLATFORM:-linux/amd64} openfaas/faas-cli:0.12.8 as faas-cli
+FROM --platform=${TARGETPLATFORM:-linux/amd64} openfaas/classic-watchdog:0.18.17 as watchdog
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.13-alpine3.12 as build
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 ENV CGO_ENABLED=0
 ENV GO111MODULE=off
@@ -15,11 +20,11 @@ COPY . .
 RUN test -z "$(gofmt -l $(find . -type f -name '*.go' -not -path "./vendor/*"))" \
     || { echo "Run \"gofmt -s -w\" on your Golang code"; exit 1; }
 
-RUN CGO_ENABLED=0 GOOS=linux \
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build --ldflags "-s -w" -a -installsuffix cgo -o handler . && \
     go test $(go list ./... | grep -v /vendor/) -cover
 
-FROM alpine:3.11 as ship
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.11 as ship
 
 RUN apk --no-cache add \
     ca-certificates \
